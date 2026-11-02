@@ -9,7 +9,26 @@ import numpy as np
 import csv
 from datetime import datetime 
 
-video_capture = cv2.VideoCapture(0)
+#video_capture = cv2.VideoCapture(0)
+def gstreamer_pipeline(
+    sensor_id=0,
+    capture_width=1280,
+    capture_height=720,
+    display_width=640,
+    display_height=360,
+    framerate=30,
+    flip_method=0,
+):
+    return (
+        f"nvarguscamerasrc sensor-id={sensor_id} ! "
+        f"video/x-raw(memory:NVMM), width=(int){capture_width}, height=(int){capture_height}, framerate=(fraction){framerate}/1 ! "
+        f"nvvidconv flip-method={flip_method} ! "
+        f"video/x-raw, width=(int){display_width}, height=(int){display_height}, format=(string)BGRx ! "
+        f"videoconvert ! "
+        f"video/x-raw, format=(string)BGR ! appsink"
+    )
+
+video_capture = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
 
 #load known faces
 
